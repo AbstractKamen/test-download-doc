@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Download Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<h1>File Download Example</h1>
+<!-- Button for jQuery download -->
+
+<!-- Button for JavaScript download -->
+
+<ol>
+    <li>
+        <button class="icons-download-blob">Download Blob File (jQuery)</button>
+    </li>
+    <li>
+        <button id="downloadButtonBlob">Download Blob File (JavaScript)</button>
+    </li>
+    <li>
+        <button class="icons-download-anchor">Download File Anchor Click (jQuery)</button>
+    </li>
+    <li>
+        <button class="icons-download-blank-tab">Download File Blank Tab (jQuery)</button>
+    </li>
+</ol>
+<script>
+    const FILE_URL = './test_doc.pdf';
+
+    // jQuery open blank function for downloading file
+    $(".icons-download-blank-tab").on("click", async function (event) {
+        window.open(await getFileUrlAfterDelay(), '_blank');
+    });
+
+    // jQuery function for downloading file
+    $(".icons-download-blob").on("click", function (event) {
+        fetch(FILE_URL)
+            .then(async resp => {
+                await timeout(2000);
+                return resp;
+            })
+            .then(resp => {
+                if (!resp.ok) {
+                    throw new Error('Download failed: ' + resp.status);
+                }
+                return resp.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                // Open the file in a new window/tab
+                window.open(url);
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Download failed:', error);
+                alert('Download Failed Unexpectedly');
+            });
+    });
+
+    // jQuery function for downloading file with hidden anchor
+    $(".icons-download-anchor").on("click", function (event) {
+        const fileName = FILE_URL.substring(FILE_URL.lastIndexOf('/'), FILE_URL.length);
+
+        fetch(FILE_URL)
+            .then(async resp => {
+                await timeout(2000);
+                return resp;
+            })
+            .then(resp => resp.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(() => alert('Download Failed Unexpectedly'));
+    });
+
+    document.getElementById('downloadButtonBlob')
+        .addEventListener('click', () => downloadFile(FILE_URL));
+
+    function downloadFile(fileUrl) {
+        fetch(fileUrl)
+            .then(async resp => {
+                await timeout(2000);
+                return resp;
+            })
+            .then(resp => {
+                if (!resp.ok) {
+                    throw new Error('Download failed: ' + resp.status);
+                }
+                return resp.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                // Open the file in a new window/tab
+                window.open(url);
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Download failed:', error);
+                alert('Download Failed Unexpectedly');
+            });
+    }
+
+    async function getFileUrlAfterDelay() {
+        await timeout(() => {
+        }, 2000);
+        return FILE_URL;
+    }
+
+    function timeout(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+</script>
+
+</body>
+</html>
